@@ -12,8 +12,19 @@ students = [
     "Norman Bates"
   ]
 
-puts "The students of Villains Academy"
-puts "-------------"
-puts students
+def print_header
+    puts "The students of Villains Academy"
+    puts "-------------"
+end
 
-print "Overall we have #{students.count} great students"
+def print(names)
+    puts names
+end
+
+def print_footer(names)
+    puts "Overall we have #{names.count} great students"
+end
+
+print_header
+print(students)
+print_footer(students)

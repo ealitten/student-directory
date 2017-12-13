@@ -11,7 +11,7 @@ Exercises (done):
 8. print_by_cohort sorts students by cohort and outputs result
 9. Both input_student and footer adjust student(s) depending on # of students
 10. Changed input_students to use delete.("\n") instead of chomp
-11.
+11. Typos.rb added
 12. Won't print footer if there are no students (printing empty list in print_names doesn't matter)
 =end
 
@@ -31,6 +31,29 @@ students = [
   ]
 =end      
 
+@students = []
+
+
+
+def interactive_menu
+    loop do
+        puts "1. Input the students"
+        puts "2. Show the students"
+        puts "9. Exit" 
+        selection = gets.chomp
+        case selection
+            when "1"
+                input_students
+            when "2"
+                show_students
+            when "9"
+                exit # this will cause the program to terminate
+            else
+                puts "I don't know what you meant, try again"
+        end        
+    end
+end
+
 def input_students
     puts "Please enter the names of the students"
     puts "To finish, just hit return twice"
@@ -40,69 +63,52 @@ def input_students
         break if name.empty?
         print "Cohort: "
         cohort = gets.delete("\n").to_sym
-        students << {name: name, cohort: cohort}
-        puts "Now we have #{students.count} student#{students.count > 1 ? "s" : ""}"
+        @students << {name: name, cohort: cohort}
+        puts "Now we have #{@students.count} student#{@students.count > 1 ? "s" : ""}"
     end
-    students
 end
 
-def interactive_menu
-    students =[]
-    loop do
-        puts "1. Input the students"
-        puts "2. Show the students"
-        puts "9. Exit" 
-        selection = gets.chomp
-        case selection
-            when "1"
-                students = input_students
-            when "2"
-                print_header
-                print_names(students)
-                print_footer(students)
-            when "9"
-                exit # this will cause the program to terminate
-            else
-                puts "I don't know what you meant, try again"
-        end        
-    end
-end
+def show_students
+    print_header
+    print_names
+    print_footer
+  end
 
 def print_header
     puts "The students of Villains Academy"
     puts "-------------"
 end
 
-def print_names(students)
-    students.each_with_index { |student,i| puts "#{i+1}. #{student[:name]} (#{student[:cohort]} cohort)" }
+def print_names
+    @students.each_with_index { |student,i| puts "#{i+1}. #{student[:name]} (#{student[:cohort]} cohort)" }
 end
 
-def print_spec_letter(students,letter)
+def print_spec_letter(letter)
     puts "Students beginning with the letter #{letter.upcase}:"
-    students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].slice(0).downcase == letter.downcase}
+    @students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].slice(0).downcase == letter.downcase}
 end
 
-def print_spec_length(students,length)
+def print_spec_length(length)
     puts "Students beginning with a name #{length} characters long:"
-    students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].length == length}
+    @students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].length == length}
 end
 
-def print_without_each(students)
+def print_without_each
     i = 0 
-    while i < students.length
-        puts "#{students[i][:name]} (#{students[i][:cohort]} cohort)"
+    while i < @students.length
+        puts "#{@students[i][:name]} (#{@students[i][:cohort]} cohort)"
         i += 1
     end
 end
 
-def print_expanded(students)
-    students.each { |student,i| 
+def print_expanded
+    @students.each { |student,i| 
         puts "#{student[:name]} (#{student[:cohort]} cohort)".ljust(50) + "Likes: #{student[:hobbies]}".ljust(40) + "#{student[:height]} tall".ljust(20) }
 end
 
-def print_by_cohort(students)
+def print_by_cohort
     sorted_by_cohort = {}
-    students.each {|student|
+    @students.each {|student|
         cohort = student[:cohort]
         sorted_by_cohort[cohort] = [] if sorted_by_cohort[cohort].nil?
         sorted_by_cohort[cohort] << student[:name]
@@ -110,17 +116,8 @@ def print_by_cohort(students)
     sorted_by_cohort.each {|k,v| puts "#{k} cohort:"; puts v}   
 end
 
-def print_footer(students)
-    puts "Overall we have #{students.count} great student#{students.count > 1 ? "s" : ""}" unless students.length == 0
+def print_footer
+    puts "Overall we have #{@students.count} great student#{@students.count > 1 ? "s" : ""}" unless @students.length == 0
 end
 
-#students = input_students
-
-#print_header
-#print_names(students)
-#print_spec_letter(students,"t")
-#print_spec_length(students,12)
-#print_without_each(students)
-#print_expanded(students)
-#print_by_cohort(students)
-#print_footer(students)
+interactive_menu

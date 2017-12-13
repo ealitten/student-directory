@@ -15,8 +15,8 @@ Exercises (done):
 12. Won't print footer if there are no students (printing empty list in print_names doesn't matter)
 =end
 
-=begin Pre-made array of students for testing
-students = [
+#Pre-made array of students for testing
+@students = [
     {name: "Dr. Hannibal Lecter", cohort: :november, hobbies: "Cannibalism", height: "1.8m"},
     {name: "Darth Vader", cohort: :november, hobbies: "Ruling the galaxy", height: "1.9m"},
     {name: "Nurse Ratched", cohort: :october, hobbies: "Scheming", height: "1.65m"},
@@ -29,25 +29,22 @@ students = [
     {name: "Joffrey Baratheon", cohort: :november, hobbies: "Cruelty", height: "1.6m"},
     {name: "Norman Bates", cohort: :november, hobbies: "Dissociative identities", height: "1.75m"}
   ]
-=end      
-
-@students = []
-
+     
+#@students = []
 
 
 def interactive_menu
     loop do
         puts "1. Input the students"
         puts "2. Show the students"
+        puts "3. Save the list to students.csv"        
         puts "9. Exit" 
         selection = gets.chomp
         case selection
-            when "1"
-                input_students
-            when "2"
-                show_students
-            when "9"
-                exit # this will cause the program to terminate
+            when "1" then input_students
+            when "2" then show_students
+            when "3" then save_students
+            when "9" then exit # this will cause the program to terminate
             else
                 puts "I don't know what you meant, try again"
         end        
@@ -73,6 +70,12 @@ def show_students
     print_names
     print_footer
   end
+
+def save_students
+    file = File.open("students.csv","w")
+    @students.each { |student| file.puts [student[:name],student[:cohort]].join(",") }
+    file.close
+end   
 
 def print_header
     puts "The students of Villains Academy"

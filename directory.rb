@@ -13,6 +13,17 @@ Exercises (done):
 10. Changed input_students to use delete.("\n") instead of chomp
 11. Typos.rb added
 12. Won't print footer if there are no students (printing empty list in print_names doesn't matter)
+
+More exercises (done):
+
+1.
+2.
+3.
+4.
+5.
+6.
+7. 
+8.
 =end
 
 #Pre-made array of students for testing
@@ -38,18 +49,20 @@ Exercises (done):
 def interactive_menu
     loop do
         print_menu
-        selection = gets.chomp
-        case selection
-            when "1" then input_students
-            when "2" then show_students
-            when "3" then save_students
-            when "4" then load_students
-            when "9" then exit # this will cause the program to terminate
-            else
-                puts "I don't know what you meant, try again"
-        end        
+        process(STDIN.gets.chomp)
     end
 end
+
+def process(selection)
+    case selection
+        when "1" then input_students
+        when "2" then show_students
+        when "3" then save_students
+        when "4" then load_students
+        when "9" then exit
+        else puts "I don't know what you meant, try again"
+    end
+end 
 
 def print_menu
     puts "1. Input the students"
@@ -64,10 +77,10 @@ def input_students
     puts "To finish, just hit return twice"
     while true
         print "Name: "
-        name = gets.delete("\n")
+        name = STDIN.gets.delete("\n")
         break if name.empty?
         print "Cohort: "
-        cohort = gets.delete("\n").to_sym
+        cohort = STDIN.gets.delete("\n").to_sym
         @students << {name: name, cohort: cohort}
         puts "Now we have #{@students.count} student#{@students.count > 1 ? "s" : ""}"
     end
@@ -85,8 +98,20 @@ def save_students
     file.close
 end
 
-def load_students
-    file = File.open("students.csv","r")
+def try_load_students
+    filename = ARGV.first
+    return if filename.nil?
+    if File.exists?(filename)
+        load_students(filename)
+        puts "Loaded #{@students.count} from #{filename}"
+    else
+        puts "Sorry, #{filename} doesn't exist."
+        exit
+    end
+end
+
+def load_students(filename="students.csv")
+    file = File.open(filename,"r")
     file.readlines.each { |line|
         name, cohort = line.chomp.split(",")
         @students << {name: name, cohort: cohort.to_sym}
@@ -140,4 +165,5 @@ def print_footer
     puts "Overall we have #{@students.count} great student#{@students.count > 1 ? "s" : ""}" unless @students.length == 0
 end
 
+try_load_students
 interactive_menu

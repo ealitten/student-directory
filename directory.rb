@@ -16,14 +16,14 @@ Exercises (done):
 
 More exercises (done):
 
-1.
-2.
-3.
-4.
-5.
-6.
-7. 
-8.
+1. Refactoring
+2. Program loads students.csv by default if no arguments
+3. Refactoring
+4. Added feedback for loading & saving students
+5. Added methods to get filenames for saving & loading
+6. Opens fles with a block in load & save methods
+7. Use CSV library rather than File to read/write to files
+8. Created write_self.rb
 =end
 
 #Pre-made array of students for testing
@@ -43,6 +43,25 @@ More exercises (done):
   ]
 =end     
 
+#for specific exercises
+=begin
+def print_without_each
+    i = 0 
+    while i < @students.length
+        puts "#{@students[i][:name]} (#{@students[i][:cohort]} cohort)"
+        i += 1
+    end
+end
+
+
+def print_expanded
+    @students.each { |student,i| 
+        puts "#{student[:name]} (#{student[:cohort]} cohort)".ljust(50) + "Likes: #{student[:hobbies]}".ljust(40) + "#{student[:height]} tall".ljust(20) }
+end
+=end
+
+require 'csv'
+
 @students = []
 
 
@@ -57,18 +76,24 @@ def process(selection)
     case selection
         when "1" then input_students
         when "2" then show_students
-        when "3" then save_students
-        when "4" then load_students
+        when "3" then get_filename(:save)
+        when "4" then get_filename(:load)
+        when "5" then print_spec_letter
+        when "6" then print_spec_length
+        when "7" then print_by_cohort
         when "9" then exit
         else puts "I don't know what you meant, try again"
     end
 end 
 
 def print_menu
-    puts "1. Input the students"
+    puts "1. Input students"
     puts "2. Show the students"
-    puts "3. Save the list to students.csv"    
-    puts "4. Load the list from students.csv"    
+    puts "3. Save the list to a file"    
+    puts "4. Load the list from a file"
+    puts "5. Show students with name beginning with a specific letter"
+    puts "6. Show students with name of specific length"
+    puts "7. Show students sorted by cohort"    
     puts "9. Exit" 
 end
 
@@ -77,11 +102,11 @@ def input_students
     puts "To finish, just hit return twice"
     while true
         print "Name: "
-        name = STDIN.gets.delete("\n")
+        name = STDIN.gets.delete("\n") #doesn't use chomp due to earlier exercise
         break if name.empty?
         print "Cohort: "
-        cohort = STDIN.gets.delete("\n").to_sym
-        @students << {name: name, cohort: cohort}
+        cohort = STDIN.gets.delete("\n")
+        @students << {name: name, cohort: cohort.to_sym}
         puts "Now we have #{@students.count} student#{@students.count > 1 ? "s" : ""}"
     end
 end
@@ -92,31 +117,41 @@ def show_students
     print_footer
   end
 
-def save_students
-    file = File.open("students.csv","w")
-    @students.each { |student| file.puts [student[:name],student[:cohort]].join(",") }
-    file.close
+def get_filename(action)
+    puts "Which file to #{action.to_s}?"
+    filename = STDIN.gets.chomp
+    save_students(filename) if action == :save
+    try_load_students(filename) if action == :load
 end
 
-def try_load_students
-    filename = ARGV.first
-    return if filename.nil?
-    if File.exists?(filename)
-        load_students(filename)
-        puts "Loaded #{@students.count} from #{filename}"
-    else
-        puts "Sorry, #{filename} doesn't exist."
-        exit
-    end
-end
-
-def load_students(filename="students.csv")
-    file = File.open(filename,"r")
-    file.readlines.each { |line|
-        name, cohort = line.chomp.split(",")
-        @students << {name: name, cohort: cohort.to_sym}
+def save_students(filename)
+    CSV.open(filename,"w") { |file| 
+        students_saved = 0
+        @students.each { |student| 
+            file << [student[:name],student[:cohort]].join(",")
+            students_saved += 1 
+        }
     }
-    file.close
+    puts "Saved #{students_saved} students to #{filename}"
+end
+
+def load_students_startup
+    ARGV.first.nil? ? filename = "students.csv" : filename = ARGV.first
+    try_load_students(filename)
+end
+
+def try_load_students(filename)
+    File.exist?(filename) ? load_students(filename) : puts("Sorry, #{filename} doesn't exist.")
+end
+
+def load_students(filename)
+    students_loaded = 0
+    CSV.foreach(filename) { |row|
+        name, cohort = row
+        @students << {name: name, cohort: cohort.to_sym}
+        students_loaded += 1
+    }
+    puts "Loaded #{students_loaded} students from #{filename}"
 end
 
 def print_header
@@ -128,27 +163,18 @@ def print_names
     @students.each_with_index { |student,i| puts "#{i+1}. #{student[:name]} (#{student[:cohort]} cohort)" }
 end
 
-def print_spec_letter(letter)
+def print_spec_letter
+    puts "Which letter?"
+    letter = STDIN.gets.chomp
     puts "Students beginning with the letter #{letter.upcase}:"
     @students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].slice(0).downcase == letter.downcase}
 end
 
-def print_spec_length(length)
+def print_spec_length
+    puts "What length?"
+    length = STDIN.gets.chomp.to_i
     puts "Students beginning with a name #{length} characters long:"
     @students.each{ |student| puts "#{student[:name]} (#{student[:cohort]} cohort)" if student[:name].length == length}
-end
-
-def print_without_each
-    i = 0 
-    while i < @students.length
-        puts "#{@students[i][:name]} (#{@students[i][:cohort]} cohort)"
-        i += 1
-    end
-end
-
-def print_expanded
-    @students.each { |student,i| 
-        puts "#{student[:name]} (#{student[:cohort]} cohort)".ljust(50) + "Likes: #{student[:hobbies]}".ljust(40) + "#{student[:height]} tall".ljust(20) }
 end
 
 def print_by_cohort
@@ -165,5 +191,5 @@ def print_footer
     puts "Overall we have #{@students.count} great student#{@students.count > 1 ? "s" : ""}" unless @students.length == 0
 end
 
-try_load_students
+load_students_startup
 interactive_menu

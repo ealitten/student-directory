@@ -16,6 +16,7 @@ Exercises (done):
 =end
 
 #Pre-made array of students for testing
+=begin
 @students = [
     {name: "Dr. Hannibal Lecter", cohort: :november, hobbies: "Cannibalism", height: "1.8m"},
     {name: "Darth Vader", cohort: :november, hobbies: "Ruling the galaxy", height: "1.9m"},
@@ -29,26 +30,33 @@ Exercises (done):
     {name: "Joffrey Baratheon", cohort: :november, hobbies: "Cruelty", height: "1.6m"},
     {name: "Norman Bates", cohort: :november, hobbies: "Dissociative identities", height: "1.75m"}
   ]
-     
-#@students = []
+=end     
+
+@students = []
 
 
 def interactive_menu
     loop do
-        puts "1. Input the students"
-        puts "2. Show the students"
-        puts "3. Save the list to students.csv"        
-        puts "9. Exit" 
+        print_menu
         selection = gets.chomp
         case selection
             when "1" then input_students
             when "2" then show_students
             when "3" then save_students
+            when "4" then load_students
             when "9" then exit # this will cause the program to terminate
             else
                 puts "I don't know what you meant, try again"
         end        
     end
+end
+
+def print_menu
+    puts "1. Input the students"
+    puts "2. Show the students"
+    puts "3. Save the list to students.csv"    
+    puts "4. Load the list from students.csv"    
+    puts "9. Exit" 
 end
 
 def input_students
@@ -75,7 +83,16 @@ def save_students
     file = File.open("students.csv","w")
     @students.each { |student| file.puts [student[:name],student[:cohort]].join(",") }
     file.close
-end   
+end
+
+def load_students
+    file = File.open("students.csv","r")
+    file.readlines.each { |line|
+        name, cohort = line.chomp.split(",")
+        @students << {name: name, cohort: cohort.to_sym}
+    }
+    file.close
+end
 
 def print_header
     puts "The students of Villains Academy"
